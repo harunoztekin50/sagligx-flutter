@@ -1,5 +1,5 @@
 name: saglixen
-description: "A new Flutter project."
+description: "Saglixen health app"
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -9,6 +9,23 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # State Management
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
+
+  # Networking
+  http: ^1.6.0
+
+  # Functional Programming
+  dartz: ^0.10.1
+  kt_dart: ^1.1.0
+
+  # Local Storage
+  shared_preferences: ^2.5.5
+  flutter_secure_storage: ^10.0.0
+  uuid: ^4.5.3
+  get_it: ^9.2.1
 
 dev_dependencies:
   flutter_test:
