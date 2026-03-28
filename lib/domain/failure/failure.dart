@@ -25,3 +25,10 @@ class NetworkFailure extends Failure {
   @override
   List<Object?> get props => [];
 }
+
+class NotFoundFailer extends Failure {
+  const NotFoundFailer();
+
+  @override
+  List<Object?> get props => [];
+}

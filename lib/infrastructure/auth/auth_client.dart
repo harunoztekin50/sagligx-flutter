@@ -17,11 +17,6 @@ class AuthClient extends Equatable with AuthMixin implements IAuthClient {
   final FlutterSecureStorage _secureStroage;
   final Uuid _uuid;
 
-  static const deviceIdKey = "device_id";
-  static const refreshTokenKey = "refresh_token";
-  static const accessToken = "access_token";
-  static const Map<String, String> headers = {'Content-Type': 'application/json'};
-
   const AuthClient({
     required Client client,
     required FlutterSecureStorage secureStroage,
@@ -33,10 +28,11 @@ class AuthClient extends Equatable with AuthMixin implements IAuthClient {
   @override
   Future<Either<Failure, Unit>> loginAnonymus() async {
     final deviceKey = await getUniqueDeviceKey();
+
     try {
-      final response = await _client.post(
-        Uri.parse(loginAnonymusUri),
-        headers: headers,
+      final response = await client.post(
+        Uri.parse("http://10.0.2.2:8989/v1/auth/login/anonymus"),
+        headers: {'Content-Type': 'application/json; charset=utf-8'},
         body: jsonEncode({"device_key": deviceKey}),
       );
 
@@ -56,7 +52,32 @@ class AuthClient extends Equatable with AuthMixin implements IAuthClient {
   }
 
   @override
-  Future<Either<Failure, UserModel>> getUser() {}
+  Future<Either<Failure, UserModel>> getUser() {
+    return sendRequestWithToken(
+      (accessToken) async {
+        return await client.get(
+          Uri.parse("http:localhost:8989/v1/auth/user"),
+          headers: {'Authorization: Bearer': accessToken},
+        );
+      },
+      (response) async {
+        if (response.statusCode == HttpStatus.unauthorized) {
+          return left(UnAuntHorizedfail());
+        } else if (response.statusCode == HttpStatus.notFound) {
+          return Left(NotFoundFailer());
+        } else {
+          return left(UnkonwFailure(response.statusCode.toString()));
+        }
+      },
+      (onExpetion) async {
+        if (onExpetion is SocketException) {
+          return left(NetworkFailure());
+        } else {
+          return left(UnkonwFailure(onExpetion.toString()));
+        }
+      },
+    );
+  }
 
   @override
   List<Object?> get props => [];
@@ -70,5 +91,3 @@ class AuthClient extends Equatable with AuthMixin implements IAuthClient {
   @override
   Uuid get uuid => _uuid;
 }
-
-const String loginAnonymusUri = ("http://localhost:8989/v1/auth/login/anonymus");

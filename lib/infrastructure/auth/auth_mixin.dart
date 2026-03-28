@@ -1,25 +1,34 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
 import 'package:saglixen/domain/auth/auth_tokens_model.dart';
 import 'package:saglixen/domain/failure/failure.dart';
-import 'package:saglixen/infrastructure/auth/auth_client.dart';
 import 'package:uuid/uuid.dart';
 
-typedef NetworkRequest<T> = Future<Either<Failure, T>> Function(String accessToken);
+typedef NetworkRequest<T> = Future<Response> Function(String accessToken);
+typedef ExeptionCallBack<T> = Future<Either<Failure, T>> Function(Object e);
+typedef ResponseCallBack<T> = Future<Either<Failure, T>> Function(Response r);
 
 mixin AuthMixin {
   FlutterSecureStorage get secureStroge;
   Client get client;
   Uuid get uuid;
 
+  static const deviceIdKey = "device_id";
+  static const refreshTokenKey = "refresh_token";
+  static const accessToken = "access_token";
+
   Future<AuthTokens?> _getAccessToken(String refreshToken) async {
     final response = await client.post(
-      Uri.parse('http://localhost:8989/v1/auth/refresh'),
+      Uri.parse('http://10.0.2.2:8989/v1/auth/refresh'),
       headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode({'device_key': await getUniqueDeviceKey(), 'refresh_token': refreshToken}),
+      body: jsonEncode({
+        'device_key': await getUniqueDeviceKey(),
+        'refresh_token': refreshToken,
+      }),
     );
 
     if (response.statusCode == 200) {
@@ -29,10 +38,14 @@ mixin AuthMixin {
     return null;
   }
 
-  Future<Either<Failure, T>> sendRequestWithToken<T>(NetworkRequest<T> request) async {
+  Future<Either<Failure, T>> sendRequestWithToken<T>(
+    NetworkRequest request,
+    ResponseCallBack<T> onResponse,
+    ExeptionCallBack<T> exepciton,
+  ) async {
     try {
-      var accesToken = await secureStroge.read(key: AuthClient.accessToken);
-      final refreshToken = await secureStroge.read(key: AuthClient.refreshTokenKey);
+      var accesToken = await secureStroge.read(key: accessToken);
+      final refreshToken = await secureStroge.read(key: refreshTokenKey);
 
       if (refreshToken == null) {
         return left(UnAuntHorizedfail());
@@ -50,16 +63,33 @@ mixin AuthMixin {
         accesToken = newTokens.accessToken;
       }
 
-      return await request.call(accesToken);
+      final response = await request(accesToken);
+      if (response.statusCode == HttpStatus.unauthorized) {
+        final newTokens = await _getAccessToken(refreshToken);
+        if (newTokens == null) {
+          return left(UnAuntHorizedfail());
+        }
+        await storeAuthTokens(authTokens: newTokens);
+
+        final retryResponse = await request(newTokens.accessToken);
+        return onResponse(retryResponse); // ikinci sonucu parse et
+      }
+
+      return onResponse(response);
     } catch (e) {
-      return left(UnkonwFailure(e.toString()));
+      return await exepciton(e);
     }
   }
 
-  Future<Either<Failure, Unit>> storeAuthTokens({required AuthTokens authTokens}) async {
+  Future<Either<Failure, Unit>> storeAuthTokens({
+    required AuthTokens authTokens,
+  }) async {
     try {
-      await secureStroge.write(key: AuthClient.accessToken, value: authTokens.accessToken);
-      await secureStroge.write(key: AuthClient.refreshTokenKey, value: authTokens.refreshToken);
+      await secureStroge.write(key: accessToken, value: authTokens.accessToken);
+      await secureStroge.write(
+        key: refreshTokenKey,
+        value: authTokens.refreshToken,
+      );
 
       return right(unit);
     } catch (e) {
@@ -68,10 +98,10 @@ mixin AuthMixin {
   }
 
   Future<String> getUniqueDeviceKey() async {
-    var deviceKey = await secureStroge.read(key: AuthClient.deviceIdKey);
+    var deviceKey = await secureStroge.read(key: deviceIdKey);
     if (deviceKey == null) {
       deviceKey = uuid.v4();
-      await secureStroge.write(key: AuthClient.deviceIdKey, value: deviceKey);
+      await secureStroge.write(key: deviceIdKey, value: deviceKey);
     }
     return deviceKey;
   }
