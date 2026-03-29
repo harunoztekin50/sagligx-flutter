@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
 import 'package:saglixen/application/auth_cubit/auth_cubit.dart';
@@ -29,19 +31,36 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Hello World!'),
-              ElevatedButton(
-                onPressed: () async {
-                  await authCubit.loginAnonymus();
-                },
-                child: Text("Login Anonymus"),
+        body: BlocBuilder<AuthCubit, AuthCubitState>(
+          bloc: authCubit,
+          builder: (context, state) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    state.userOption.fold(
+                      () {
+                        return "kulanıcı yok";
+                      },
+                      (user) {
+                        return "kulanıcı var ${user.name}  user id: ${user.id}";
+                      },
+                    ),
+                    style: TextStyle(fontSize: 25),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await authCubit.loginAnonymus();
+                    },
+                    child: state.isSingingIn
+                        ? CupertinoActivityIndicator()
+                        : Text("Login Anonymus"),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

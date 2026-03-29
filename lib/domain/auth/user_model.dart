@@ -62,7 +62,9 @@ class UserModel extends Equatable {
       isNewUser: json['is_new_user'] as bool,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
-      deletedAt: json['deleted_at'] != null ? DateTime.parse(json['deleted_at'] as String) : null,
+      deletedAt: json['deleted_at'] != null
+          ? DateTime.parse(json['deleted_at'] as String)
+          : null,
     );
   }
 
@@ -81,7 +83,8 @@ class UserModel extends Equatable {
       'subscription_period': subscriptionPeriod,
       'subscription_type': subscriptionType,
       'subscription_status': subscriptionStatus,
-      'subscription_expires_at': subscriptionExpiresAt?.toIso8601String(),
+      'subscription_expires_at': subscriptionExpiresAt
+          ?.toIso8601String(),
       'is_new_user': isNewUser,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
@@ -114,10 +117,13 @@ class UserModel extends Equatable {
       credits: credits ?? this.credits,
       creditsExpiresAt: creditsExpiresAt ?? this.creditsExpiresAt,
       subscriptionPlan: subscriptionPlan ?? this.subscriptionPlan,
-      subscriptionPeriod: subscriptionPeriod ?? this.subscriptionPeriod,
+      subscriptionPeriod:
+          subscriptionPeriod ?? this.subscriptionPeriod,
       subscriptionType: subscriptionType ?? this.subscriptionType,
-      subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
-      subscriptionExpiresAt: subscriptionExpiresAt ?? this.subscriptionExpiresAt,
+      subscriptionStatus:
+          subscriptionStatus ?? this.subscriptionStatus,
+      subscriptionExpiresAt:
+          subscriptionExpiresAt ?? this.subscriptionExpiresAt,
       isNewUser: isNewUser ?? this.isNewUser,
       createdAt: createdAt, // değişmez
       updatedAt: updatedAt ?? this.updatedAt,
@@ -126,7 +132,8 @@ class UserModel extends Equatable {
   }
 
   @override
-  String toString() => 'UserModel(id: $id, name: $name, authMethod: $authMethod)';
+  String toString() =>
+      'UserModel(id: $id, name: $name, authMethod: $authMethod)';
 
   @override
   List<Object?> get props => [id, customerId, authId];

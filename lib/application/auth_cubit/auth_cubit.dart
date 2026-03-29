@@ -8,19 +8,42 @@ import 'package:saglixen/domain/failure/failure.dart';
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthCubitState> {
+  final IAuthClient _authClient;
+
   AuthCubit(this._authClient) : super(AuthCubitState.initial());
 
   Future<void> loginAnonymus() async {
-    emit(AuthCubitState.initial());
+    emit(
+      state.copyWith(
+        singInFailOption: none(),
+        userOption: none(),
+        isSingingIn: true,
+      ),
+    );
 
-    final failORtokens = await _authClient.loginAnonymus();
-
-    if (failORtokens.isLeft()) {
-      final failure = failORtokens.fold((f) => f, (_) => throw StateError(""));
-      emit(state.copyWith(singInFailOption: some(failure)));
+    final failOrTokens = await _authClient.loginAnonymus();
+    failOrTokens.fold((failure) {
+      emit(
+        state.copyWith(
+          singInFailOption: some(failure),
+          isSingingIn: false,
+        ),
+      );
       return;
-    }
-  }
+    }, (_) => null);
+    if (state.singInFailOption.isSome()) return;
 
-  final IAuthClient _authClient;
+    final getUserOrFail = await _authClient.getUser();
+    getUserOrFail.fold(
+      (failure) => emit(
+        state.copyWith(
+          singInFailOption: some(failure),
+          isSingingIn: false,
+        ),
+      ),
+      (user) => emit(
+        state.copyWith(userOption: some(user), isSingingIn: false),
+      ),
+    );
+  }
 }

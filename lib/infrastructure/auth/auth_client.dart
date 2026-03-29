@@ -12,7 +12,9 @@ import 'package:saglixen/domain/failure/failure.dart';
 import 'package:saglixen/infrastructure/auth/auth_mixin.dart';
 import 'package:uuid/uuid.dart';
 
-class AuthClient extends Equatable with AuthMixin implements IAuthClient {
+class AuthClient extends Equatable
+    with AuthMixin
+    implements IAuthClient {
   final Client _client;
   final FlutterSecureStorage _secureStroage;
   final Uuid _uuid;
@@ -37,7 +39,8 @@ class AuthClient extends Equatable with AuthMixin implements IAuthClient {
       );
 
       if (response.statusCode == HttpStatus.ok) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        final body =
+            jsonDecode(response.body) as Map<String, dynamic>;
         return storeAuthTokens(authTokens: AuthTokens.fromMap(body));
       } else if (response.statusCode == HttpStatus.unauthorized) {
         return left(UnAuntHorizedfail());
@@ -56,11 +59,16 @@ class AuthClient extends Equatable with AuthMixin implements IAuthClient {
     return sendRequestWithToken(
       (accessToken) async {
         return await client.get(
-          Uri.parse("http:localhost:8989/v1/auth/user"),
-          headers: {'Authorization: Bearer': accessToken},
+          Uri.parse("http://10.0.2.2:8989/v1/auth/user"),
+          headers: {'Authorization': 'Bearer $accessToken'},
         );
       },
       (response) async {
+        if (response.statusCode == HttpStatus.ok) {
+          final body =
+              jsonDecode(response.body) as Map<String, dynamic>;
+          return right(UserModel.fromJson(body));
+        }
         if (response.statusCode == HttpStatus.unauthorized) {
           return left(UnAuntHorizedfail());
         } else if (response.statusCode == HttpStatus.notFound) {

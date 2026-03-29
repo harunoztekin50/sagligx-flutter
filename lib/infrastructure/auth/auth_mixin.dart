@@ -9,8 +9,8 @@ import 'package:saglixen/domain/failure/failure.dart';
 import 'package:uuid/uuid.dart';
 
 typedef NetworkRequest<T> = Future<Response> Function(String accessToken);
-typedef ExeptionCallBack<T> = Future<Either<Failure, T>> Function(Object e);
 typedef ResponseCallBack<T> = Future<Either<Failure, T>> Function(Response r);
+typedef ExeptionCallBack<T> = Future<Either<Failure, T>> Function(Object e);
 
 mixin AuthMixin {
   FlutterSecureStorage get secureStroge;
@@ -38,6 +38,26 @@ mixin AuthMixin {
     return null;
   }
 
+  bool _isTokenExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+
+      // JWT'nin payload kısmı (ortadaki parça)
+      final normalized = base64Url.normalize(parts[1]);
+      final payload = json.decode(utf8.decode(base64Url.decode(normalized)));
+
+      final exp = payload['exp'] as int?;
+      if (exp == null) return true;
+
+      // 30 saniye buffer — tam sınırda gönderip yolda expire olmasın
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      return now >= exp - 30;
+    } catch (_) {
+      return true; // parse edilemiyorsa expired say, yenilensin
+    }
+  }
+
   Future<Either<Failure, T>> sendRequestWithToken<T>(
     NetworkRequest request,
     ResponseCallBack<T> onResponse,
@@ -45,13 +65,13 @@ mixin AuthMixin {
   ) async {
     try {
       var accesToken = await secureStroge.read(key: accessToken);
-      final refreshToken = await secureStroge.read(key: refreshTokenKey);
+      var refreshToken = await secureStroge.read(key: refreshTokenKey);
 
-      if (refreshToken == null) {
+      if (refreshToken == null || accesToken == null) {
         return left(UnAuntHorizedfail());
       }
 
-      if (accesToken == null) {
+      if (_isTokenExpired(accesToken)) {
         final newTokens = await _getAccessToken(refreshToken);
         if (newTokens == null) {
           return left(UnAuntHorizedfail());
@@ -61,6 +81,7 @@ mixin AuthMixin {
           return left(UnkonwFailure("Token saklanamadı"));
         }
         accesToken = newTokens.accessToken;
+        refreshToken = newTokens.refreshToken;
       }
 
       final response = await request(accesToken);
@@ -69,8 +90,11 @@ mixin AuthMixin {
         if (newTokens == null) {
           return left(UnAuntHorizedfail());
         }
-        await storeAuthTokens(authTokens: newTokens);
 
+        final storeResult = await storeAuthTokens(authTokens: newTokens);
+        if (storeResult.isLeft()) {
+          return left(UnkonwFailure("Token saklanamadı"));
+        }
         final retryResponse = await request(newTokens.accessToken);
         return onResponse(retryResponse); // ikinci sonucu parse et
       }
