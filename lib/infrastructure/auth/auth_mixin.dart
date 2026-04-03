@@ -4,13 +4,16 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
+import 'package:saglixen/core/failure/failure.dart';
 import 'package:saglixen/domain/auth/auth_tokens_model.dart';
-import 'package:saglixen/domain/failure/failure.dart';
 import 'package:uuid/uuid.dart';
 
-typedef NetworkRequest<T> = Future<Response> Function(String accessToken);
-typedef ResponseCallBack<T> = Future<Either<Failure, T>> Function(Response r);
-typedef ExeptionCallBack<T> = Future<Either<Failure, T>> Function(Object e);
+typedef NetworkRequest<T> =
+    Future<Response> Function(String accessToken);
+typedef ResponseCallBack<T> =
+    Future<Either<Failure, T>> Function(Response r);
+typedef ExeptionCallBack<T> =
+    Future<Either<Failure, T>> Function(Object e);
 
 mixin AuthMixin {
   FlutterSecureStorage get secureStroge;
@@ -19,7 +22,7 @@ mixin AuthMixin {
 
   static const deviceIdKey = "device_id";
   static const refreshTokenKey = "refresh_token";
-  static const accessToken = "access_token";
+  static const accessTokenKey = "access_token";
 
   Future<AuthTokens?> _getAccessToken(String refreshToken) async {
     final response = await client.post(
@@ -45,7 +48,9 @@ mixin AuthMixin {
 
       // JWT'nin payload kısmı (ortadaki parça)
       final normalized = base64Url.normalize(parts[1]);
-      final payload = json.decode(utf8.decode(base64Url.decode(normalized)));
+      final payload = json.decode(
+        utf8.decode(base64Url.decode(normalized)),
+      );
 
       final exp = payload['exp'] as int?;
       if (exp == null) return true;
@@ -64,8 +69,10 @@ mixin AuthMixin {
     ExeptionCallBack<T> exepciton,
   ) async {
     try {
-      var accesToken = await secureStroge.read(key: accessToken);
-      var refreshToken = await secureStroge.read(key: refreshTokenKey);
+      var accesToken = await secureStroge.read(key: accessTokenKey);
+      var refreshToken = await secureStroge.read(
+        key: refreshTokenKey,
+      );
 
       if (refreshToken == null || accesToken == null) {
         return left(UnAuntHorizedfail());
@@ -76,7 +83,9 @@ mixin AuthMixin {
         if (newTokens == null) {
           return left(UnAuntHorizedfail());
         }
-        final storeResult = await storeAuthTokens(authTokens: newTokens);
+        final storeResult = await storeAuthTokens(
+          authTokens: newTokens,
+        );
         if (storeResult.isLeft()) {
           return left(UnkonwFailure("Token saklanamadı"));
         }
@@ -91,7 +100,9 @@ mixin AuthMixin {
           return left(UnAuntHorizedfail());
         }
 
-        final storeResult = await storeAuthTokens(authTokens: newTokens);
+        final storeResult = await storeAuthTokens(
+          authTokens: newTokens,
+        );
         if (storeResult.isLeft()) {
           return left(UnkonwFailure("Token saklanamadı"));
         }
@@ -105,11 +116,38 @@ mixin AuthMixin {
     }
   }
 
+  Future<Either<Failure, AuthTokens>> getAuthTokens() async {
+    try {
+      final accesnToken = await secureStroge.read(
+        key: accessTokenKey,
+      );
+      final refreshToken = await secureStroge.read(
+        key: refreshTokenKey,
+      );
+
+      if (accesnToken == null || refreshToken == null) {
+        return left(NotFoundFailer());
+      }
+
+      return right(
+        AuthTokens(
+          refreshToken: refreshToken,
+          accessToken: accesnToken,
+        ),
+      );
+    } catch (e) {
+      return left(UnkonwFailure(e.toString()));
+    }
+  }
+
   Future<Either<Failure, Unit>> storeAuthTokens({
     required AuthTokens authTokens,
   }) async {
     try {
-      await secureStroge.write(key: accessToken, value: authTokens.accessToken);
+      await secureStroge.write(
+        key: accessTokenKey,
+        value: authTokens.accessToken,
+      );
       await secureStroge.write(
         key: refreshTokenKey,
         value: authTokens.refreshToken,

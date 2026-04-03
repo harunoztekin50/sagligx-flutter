@@ -2,24 +2,21 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
+import 'package:saglixen/core/failure/failure.dart';
 import 'package:saglixen/domain/auth/auth_tokens_model.dart';
 import 'package:saglixen/domain/auth/i_auth_client.dart';
 import 'package:saglixen/domain/auth/user_model.dart';
-import 'package:saglixen/domain/failure/failure.dart';
 import 'package:saglixen/infrastructure/auth/auth_mixin.dart';
 import 'package:uuid/uuid.dart';
 
-class AuthClient extends Equatable
-    with AuthMixin
-    implements IAuthClient {
+class AuthClient extends IAuthClient with AuthMixin {
   final Client _client;
   final FlutterSecureStorage _secureStroage;
   final Uuid _uuid;
 
-  const AuthClient({
+  AuthClient({
     required Client client,
     required FlutterSecureStorage secureStroage,
     required Uuid uuid,
@@ -88,7 +85,9 @@ class AuthClient extends Equatable
   }
 
   @override
-  List<Object?> get props => [];
+  Future<Either<Failure, AuthTokens>> getStoreAuthTokens() async {
+    return await getAuthTokens();
+  }
 
   @override
   Client get client => _client;
