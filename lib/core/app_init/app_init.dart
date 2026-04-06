@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saglixen/application/auth_cubit/auth_cubit.dart';
+import 'package:saglixen/application/botom_nav_bar/botom_nav_bar_cubit.dart';
 import 'package:saglixen/core/dependy_injekt.dart/dependy.dart';
 
 @immutable
@@ -22,7 +23,10 @@ final class AppInit {
 
   static Widget providers({required Widget child}) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => getit<AuthCubit>())],
+      providers: [
+        BlocProvider(create: (_) => getit<AuthCubit>()),
+        BlocProvider(create: (_) => getit<BotomNavBarCubit>()),
+      ],
       child: child,
     );
   }

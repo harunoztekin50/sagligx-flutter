@@ -15,6 +15,9 @@ class AppTheme {
     Brightness brightness,
   ) {
     return ThemeData(
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       brightness: brightness,
       scaffoldBackgroundColor: colors.background,
       colorScheme: brightness == Brightness.light

@@ -42,6 +42,15 @@ class AuthCubit extends Cubit<AuthCubitState> {
 
   Future<void> _getUser() async {
     final getUserOrFail = await _authClient.getUser();
+
+    emit(
+      state.copyWith(
+        singInFailOption: none(),
+        userOption: none(),
+        isSingingIn: true,
+      ),
+    );
+
     return getUserOrFail.fold(
       (failure) => emit(
         state.copyWith(

@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:saglixen/application/auth_cubit/auth_cubit.dart';
+import 'package:saglixen/application/botom_nav_bar/botom_nav_bar_cubit.dart';
 import 'package:saglixen/infrastructure/auth/auth_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -34,4 +35,6 @@ Future<void> setupInjection() async {
   getit.registerFactory<AuthCubit>(
     () => AuthCubit(getit<AuthClient>()),
   );
+
+  getit.registerFactory<BotomNavBarCubit>(() => BotomNavBarCubit());
 }

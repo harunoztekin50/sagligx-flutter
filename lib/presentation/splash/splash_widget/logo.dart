@@ -20,13 +20,12 @@ final class SplashLogo extends StatelessWidget {
                 ),
               )
               .animate(
-                /*   onPlay: (controller) =>
-                    controller.repeat(reverse: false),
-               */
+                onPlay: (controller) =>
+                    controller.repeat(reverse: true),
               )
               .scale(
                 begin: Offset(0.7, 0.7),
-                end: Offset(1.15, 1.15),
+                end: Offset(1.10, 1.10),
                 duration: 2000.ms,
                 curve: Curves.easeInOut,
               ),
