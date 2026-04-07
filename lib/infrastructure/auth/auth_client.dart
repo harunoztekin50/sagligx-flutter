@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
+import 'package:saglixen/core/contants/api_endpoints.dart';
 import 'package:saglixen/core/failure/failure.dart';
 import 'package:saglixen/domain/auth/auth_tokens_model.dart';
 import 'package:saglixen/domain/auth/i_auth_client.dart';
@@ -30,7 +31,7 @@ class AuthClient extends IAuthClient with AuthMixin {
 
     try {
       final response = await client.post(
-        Uri.parse("http://10.0.2.2:8989/v1/auth/login/anonymus"),
+        ApiEndpoints.anonymousLogin,
         headers: {'Content-Type': 'application/json; charset=utf-8'},
         body: jsonEncode({"device_key": deviceKey}),
       );
@@ -39,11 +40,8 @@ class AuthClient extends IAuthClient with AuthMixin {
         final body =
             jsonDecode(response.body) as Map<String, dynamic>;
         return storeAuthTokens(authTokens: AuthTokens.fromMap(body));
-      } else if (response.statusCode == HttpStatus.unauthorized) {
-        return left(UnAuntHorizedfail());
-      } else {
-        return left(UnkonwFailure(response.statusCode.toString()));
       }
+      return Left(mapStatusToFailure(response.statusCode));
     } on SocketException catch (_) {
       return left(NetworkFailure());
     } catch (e) {
@@ -56,7 +54,7 @@ class AuthClient extends IAuthClient with AuthMixin {
     return sendRequestWithToken(
       (accessToken) async {
         return await client.get(
-          Uri.parse("http://10.0.2.2:8989/v1/auth/user"),
+          ApiEndpoints.user,
           headers: {'Authorization': 'Bearer $accessToken'},
         );
       },
@@ -66,20 +64,32 @@ class AuthClient extends IAuthClient with AuthMixin {
               jsonDecode(response.body) as Map<String, dynamic>;
           return right(UserModel.fromJson(body));
         }
-        if (response.statusCode == HttpStatus.unauthorized) {
-          return left(UnAuntHorizedfail());
-        } else if (response.statusCode == HttpStatus.notFound) {
-          return Left(NotFoundFailer());
-        } else {
-          return left(UnkonwFailure(response.statusCode.toString()));
-        }
+        return Left(mapStatusToFailure(response.statusCode));
       },
       (onExpetion) async {
-        if (onExpetion is SocketException) {
-          return left(NetworkFailure());
-        } else {
-          return left(UnkonwFailure(onExpetion.toString()));
+        return Left(mapExceptionToFailure(onExpetion));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> logOut() async {
+    return sendRequestWithToken(
+      (accessToken) async {
+        return await client.post(
+          ApiEndpoints.logout,
+          headers: {'Authorization': 'Bearer $accessToken'},
+        );
+      },
+      (response) async {
+        if (response.statusCode == HttpStatus.ok) {
+          remoweAuthTokens();
+          return right(unit);
         }
+        return left(mapStatusToFailure(response.statusCode));
+      },
+      (onExpetion) async {
+        return Left(mapExceptionToFailure(onExpetion));
       },
     );
   }

@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  env:
+    path: module/env
+
   # State Management
   flutter_bloc: ^9.1.1
   equatable: ^2.0.8
@@ -39,17 +42,12 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/saglix_icon_1024x1024.png"  # senin logo path'in ne ise
+  image_path: "assets/images/saglix_icon_1024x1024.png"
   min_sdk_android: 21
-  remove_alpha_ios: true  
-  
-
+  remove_alpha_ios: true
 
 flutter:
   uses-material-design: true
 
-  
-  
   assets:
     - assets/images/
-  

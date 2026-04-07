@@ -10,12 +10,16 @@ class AppColorTheme {
 
   factory AppColorTheme.ligth() {
     return AppColorTheme._(
-      background: Color(0xFFFDFBF7),
-      surface: Color(0xFFFFFFFF),
-      primary: Color(0xFFD4A373),
-      textPrimary: Color(0xFF2c241b),
-      textSecondary: Color(0xFF857f72),
-      border: Color(0xFFF2F2F2),
+      background: const Color(0xFFFDFBF7),
+      surface: const Color(0xFFFFFFFF),
+      primary: const Color(0xFFD4A373),
+      textPrimary: const Color(
+        0xFF1A1A2E,
+      ), // neredeyse siyah, background'a karşı güçlü
+      textSecondary: const Color(
+        0xFF4A4A6A,
+      ), // soluk değil ama primary kadar koyu da değil
+      border: const Color.fromARGB(255, 219, 208, 196),
     );
   }
 

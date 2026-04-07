@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
+import 'package:saglixen/core/contants/api_endpoints.dart';
 import 'package:saglixen/core/failure/failure.dart';
 import 'package:saglixen/domain/auth/auth_tokens_model.dart';
 import 'package:uuid/uuid.dart';
@@ -26,7 +28,7 @@ mixin AuthMixin {
 
   Future<AuthTokens?> _getAccessToken(String refreshToken) async {
     final response = await client.post(
-      Uri.parse('http://10.0.2.2:8989/v1/auth/refresh'),
+      ApiEndpoints.refresh,
       headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({
         'device_key': await getUniqueDeviceKey(),
@@ -159,6 +161,17 @@ mixin AuthMixin {
     }
   }
 
+  Future<Either<Failure, Unit>> remoweAuthTokens() async {
+    try {
+      await secureStroge.delete(key: accessTokenKey);
+      await secureStroge.delete(key: refreshTokenKey);
+
+      return right(unit);
+    } catch (e) {
+      return left(UnkonwFailure(e.toString()));
+    }
+  }
+
   Future<String> getUniqueDeviceKey() async {
     var deviceKey = await secureStroge.read(key: deviceIdKey);
     if (deviceKey == null) {
@@ -166,5 +179,25 @@ mixin AuthMixin {
       await secureStroge.write(key: deviceIdKey, value: deviceKey);
     }
     return deviceKey;
+  }
+
+  // auth_mixin.dart içine ekle
+
+  // Hata kodlarını Failure'a çeviren tek nokta
+  Failure mapStatusToFailure(int statusCode) {
+    return switch (statusCode) {
+      HttpStatus.unauthorized => UnAuntHorizedfail(),
+      HttpStatus.notFound => NotFoundFailer(),
+      _ => UnkonwFailure(statusCode.toString()),
+    };
+  }
+
+  // Exception'ı Failure'a çeviren tek nokta
+  Failure mapExceptionToFailure(Object e) {
+    return switch (e) {
+      SocketException() => NetworkFailure(),
+      TimeoutException() => TimeoutFailure(),
+      _ => UnkonwFailure(e.toString()),
+    };
   }
 }

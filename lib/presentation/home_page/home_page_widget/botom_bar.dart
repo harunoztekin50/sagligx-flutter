@@ -12,6 +12,7 @@ class HomePageBotomBar extends StatelessWidget {
     return BlocBuilder<BotomNavBarCubit, BotomNavBarState>(
       builder: (context, state) {
         return BottomNavigationBar(
+          backgroundColor: context.colors.surface,
           currentIndex: state.curentIndex,
           onTap: (value) {
             context.read<BotomNavBarCubit>().selcetTab(

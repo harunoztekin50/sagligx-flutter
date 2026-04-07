@@ -32,3 +32,9 @@ class NotFoundFailer extends Failure {
   @override
   List<Object?> get props => [];
 }
+
+class TimeoutFailure extends Failure {
+  const TimeoutFailure();
+  @override
+  List<Object?> get props => [];
+}

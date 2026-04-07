@@ -29,7 +29,6 @@ class _HomePageState extends State<HomePage> with HomePageMixin {
         controler.jumpToPage(state.curentIndex);
       },
       child: Scaffold(
-        appBar: AppBar(),
         body: PageView(
           physics: NeverScrollableScrollPhysics(),
           controller: controler,
