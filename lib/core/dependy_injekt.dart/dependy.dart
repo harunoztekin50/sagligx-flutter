@@ -38,4 +38,5 @@ Future<void> setupInjection() async {
   );
 
   getit.registerFactory<BotomNavBarCubit>(() => BotomNavBarCubit());
+  await getit.allReady();
 }

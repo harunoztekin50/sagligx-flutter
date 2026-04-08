@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
 import 'package:saglixen/core/contants/api_endpoints.dart';
@@ -27,16 +28,30 @@ class AuthClient extends IAuthClient with AuthMixin {
 
   @override
   Future<Either<Failure, Unit>> loginAnonymus() async {
+    debugPrint('CLIENT: loginAnonymus başladı');
+
     final deviceKey = await getUniqueDeviceKey();
+    debugPrint('CLIENT: deviceKey=$deviceKey');
 
     try {
+      debugPrint(
+        'CLIENT: istek atılıyor → ${ApiEndpoints.anonymousLogin}',
+      );
+
       final response = await client.post(
         ApiEndpoints.anonymousLogin,
         headers: {'Content-Type': 'application/json; charset=utf-8'},
         body: jsonEncode({"device_key": deviceKey}),
       );
+      debugPrint(
+        'CLIENT: response=${response.statusCode} ${response.body}',
+      );
 
       if (response.statusCode == HttpStatus.ok) {
+        debugPrint(
+          'LOGIN RESPONSE: ${response.body}',
+        ); // ← bunu paylaş
+
         final body =
             jsonDecode(response.body) as Map<String, dynamic>;
         return storeAuthTokens(authTokens: AuthTokens.fromMap(body));
@@ -74,17 +89,33 @@ class AuthClient extends IAuthClient with AuthMixin {
 
   @override
   Future<Either<Failure, Unit>> logOut() async {
+    final deviceKey = await _secureStroage.read(
+      key: AuthMixin.deviceIdKey,
+    );
+
+    if (deviceKey == null) {
+      return Left(NotFoundFailer());
+    }
+
     return sendRequestWithToken(
       (accessToken) async {
         return await client.post(
           ApiEndpoints.logout,
-          headers: {'Authorization': 'Bearer $accessToken'},
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'Content-Type':
+                'application/json; charset=utf-8', // ← ekle
+          },
+          body: jsonEncode({"device_key": deviceKey}),
         );
       },
       (response) async {
+        debugPrint(
+          'RESPONSE: ${response.statusCode} ${response.body}',
+        );
+
         if (response.statusCode == HttpStatus.ok) {
-          remoweAuthTokens();
-          return right(unit);
+          return remoweAuthTokens();
         }
         return left(mapStatusToFailure(response.statusCode));
       },

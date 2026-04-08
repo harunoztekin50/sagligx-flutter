@@ -23,36 +23,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-/* class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthCubitState>(
-      listenWhen: (previous, current) {
-        return previous.userOption.isNone() &&
-            current.userOption.isSome();
-      },
-
-      listener: (context, state) {
-        Navigator.pushReplacement(context, HomePage.route());
-      },
-      child: Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  context.read<AuthCubit>().loginAnonymus();
-                },
-                child: Text("Login"),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
- */

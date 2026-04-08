@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saglixen/application/auth_cubit/auth_cubit.dart';
 import 'package:saglixen/core/extension/contex_extension.dart';
 import 'package:saglixen/presentation/home_page/home_page.dart';
+import 'package:saglixen/presentation/login_page/login_page.dart';
 import 'package:saglixen/presentation/splash/splash_mixin.dart';
 import 'package:saglixen/presentation/splash/splash_widget/logo.dart';
 
@@ -20,23 +21,18 @@ class _SplashPageState extends State<SplashPage> with SplashMixin {
     return MultiBlocListener(
       listeners: [
         BlocListener<AuthCubit, AuthCubitState>(
-          listenWhen: (previous, current) {
-            return previous.userOption.isNone() &&
-                current.userOption.isSome();
-          },
-          listener: (context, state) {
-            Navigator.pushReplacement(context, HomePage.route());
-          },
+          listenWhen: (previous, current) =>
+              previous.userOption.isNone() &&
+              current.userOption.isSome(),
+          listener: (context, state) =>
+              Navigator.pushReplacement(context, HomePage.route()),
         ),
-
         BlocListener<AuthCubit, AuthCubitState>(
-          listenWhen: (previous, current) {
-            return previous.userOption.isNone() &&
-                current.userOption.isNone();
-          },
-          listener: (context, state) {
-            Navigator.pushReplacement(context, HomePage.route());
-          },
+          listenWhen: (previous, current) =>
+              previous.processFailOption.isNone() &&
+              current.processFailOption.isSome(),
+          listener: (context, state) =>
+              Navigator.pushReplacement(context, LoginPage.route()),
         ),
       ],
       child: Scaffold(

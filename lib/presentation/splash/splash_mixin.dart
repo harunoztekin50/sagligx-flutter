@@ -8,9 +8,9 @@ mixin SplashMixin on State<SplashPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authCubit = context.read<AuthCubit>();
-      authCubit.initialize();
+      await authCubit.initialize();
     });
   }
 }

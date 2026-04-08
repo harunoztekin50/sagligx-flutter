@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saglixen/core/extension/dart_extension.dart';
 import 'package:saglixen/core/failure/failure.dart';
@@ -33,6 +34,8 @@ class AuthCubit extends Cubit<AuthCubitState> {
   }
 
   Future<void> loginAnonymus() async {
+    debugPrint('CUBIT: loginAnonymus çağrıldı'); // ← bu yazıyor mu?
+
     emit(
       state.copyWith(
         processFailOption: none(),
@@ -57,8 +60,6 @@ class AuthCubit extends Cubit<AuthCubitState> {
   }
 
   Future<void> _getUser() async {
-    final getUserOrFail = await _authClient.getUser();
-
     emit(
       state.copyWith(
         processFailOption: none(),
@@ -66,6 +67,8 @@ class AuthCubit extends Cubit<AuthCubitState> {
         isProcessing: true,
       ),
     );
+
+    final getUserOrFail = await _authClient.getUser();
 
     return getUserOrFail.fold(
       (failure) => emit(
