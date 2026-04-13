@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:saglixen/application/auth_cubit/auth_cubit.dart';
 import 'package:saglixen/core/contants/app_assets.dart';
+import 'package:saglixen/core/contants/string_constansts.dart';
 import 'package:saglixen/core/core_widgets/primary_buton.dart';
 import 'package:saglixen/core/extension/contex_extension.dart';
+import 'package:saglixen/core/extension/dart_extension.dart';
+import 'package:saglixen/core/failure/handle_failure.dart';
+import 'package:saglixen/core/widgets_wraper/scale_tap_efekt.dart';
+import 'package:saglixen/presentation/home_page/home_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage._();
@@ -12,7 +19,7 @@ class LoginPage extends StatelessWidget {
   static PageTransition<dynamic> route() {
     return PageTransition(
       type: PageTransitionType.fade,
-      childBuilder: (_) => LoginPage._(),
+      childBuilder: (_) => const LoginPage._(),
     );
   }
 
@@ -21,38 +28,108 @@ class LoginPage extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LoginPageHeaderImage(size: size),
-            LoginPageHeaderTitle(),
-            LoginPageDesciriptionText(size: size),
-            PrimaryButton(
-              text: "Start Restoring",
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              heigth: 50,
-              callback: () {
-                HapticFeedback.lightImpact();
-              },
-            ),
-          ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthCubit, AuthCubitState>(
+            listenWhen: (previous, current) {
+              return previous.userOption.isNone() &&
+                  current.userOption.isSome();
+            },
+            listener: (context, state) async {
+              await Navigator.pushReplacement(
+                context,
+                HomePage.route(),
+              );
+            },
+          ),
+          BlocListener<AuthCubit, AuthCubitState>(
+            listenWhen: (previous, current) {
+              return previous.processFailOption.isNone() &&
+                  current.processFailOption.isSome();
+            },
+            listener: (context, state) {
+              handleFailure(
+                context,
+                state.processFailOption.getOrCrash(),
+              );
+            },
+          ),
+        ],
+        child: Scaffold(
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LoginPageHeaderImage(size: size),
+              const LoginPageHeaderTitle(),
+              LoginPageDesciriptionText(size: size),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: PrimaryButton(
+                  text: StringConstants.startButtonText,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  heigth: 50,
+                  callback: HapticFeedback.lightImpact,
+                ),
+              ),
+              const LoginPaheHaveAccount(),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+class LoginPaheHaveAccount extends StatelessWidget {
+  const LoginPaheHaveAccount({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          StringConstants.haveAccountText,
+          style: TextStyle(
+            color: context.colors.textSecondary,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 5,
+            horizontal: 10,
+          ),
+          child: Text(
+            StringConstants.loginText,
+            style: TextStyle(
+              fontSize: 18,
+              color: context.colors.primary,
+              fontWeight: FontWeight.w600,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ).scaleTap(
+          onTap: () async {
+            await context.read<AuthCubit>().loginAnonymus();
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class LoginPageDesciriptionText extends StatelessWidget {
-  const LoginPageDesciriptionText({super.key, required this.size});
+  const LoginPageDesciriptionText({required this.size, super.key});
 
   final Size size;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(
@@ -61,7 +138,7 @@ class LoginPageDesciriptionText extends StatelessWidget {
           ),
           child: Text(
             textAlign: TextAlign.center,
-            "Eksi aile fotoğraflarını canlandırın ve güzeleleştiren yardımcı AI asistanı",
+            StringConstants.descriptionText,
             style: TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 25,
@@ -100,9 +177,11 @@ class LoginPageHeaderTitle extends StatelessWidget {
                 color: context.colors.textPrimary,
               ),
               children: [
-                TextSpan(text: "Bring Your Past\n"),
+                const TextSpan(
+                  text: StringConstants.headerTitleLine1,
+                ),
                 TextSpan(
-                  text: "Back to life",
+                  text: StringConstants.headerTitleLine2,
                   style: TextStyle(
                     color: context.colors.primary,
                     fontStyle: FontStyle.italic,
@@ -119,14 +198,13 @@ class LoginPageHeaderTitle extends StatelessWidget {
 }
 
 class LoginPageHeaderImage extends StatelessWidget {
-  const LoginPageHeaderImage({super.key, required this.size});
+  const LoginPageHeaderImage({required this.size, super.key});
 
   final Size size;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
-      fit: StackFit.loose,
       children: [
         Image.asset(
           AppAssets.carLogo.path,
@@ -151,7 +229,7 @@ class LoginPageHeaderImage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  "Saglix AI",
+                  StringConstants.brandName,
                   style: TextStyle(
                     fontFamily: GoogleFonts.roboto(
                       fontWeight: FontWeight.w500,
@@ -193,21 +271,6 @@ class LoginPageHeaderImage extends StatelessWidget {
             ),
           ),
         ),
-
-        /* 
-        Positioned(
-          bottom: size.height * 0.05,
-          right: 0,
-          left: 0,
-          child: Center(
-            child: ElevatedButton(
-              onPressed: () {
-                //context.read<AuthCubit>().loginAnonymus();
-              },
-              child: Text("Login"),
-            ),
-          ),
-        ), */
       ],
     );
   }

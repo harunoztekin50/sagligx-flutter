@@ -11,32 +11,26 @@ import 'package:uuid/uuid.dart';
 final getit = GetIt.instance;
 
 Future<void> setupInjection() async {
-  // lazy — hemen üretme, ilk kullanımda üret
-  getit.registerLazySingleton<Client>(() => TimeoutClient());
-  getit.registerLazySingleton<FlutterSecureStorage>(
-    () => const FlutterSecureStorage(),
-  );
-  getit.registerLazySingleton<Uuid>(() => const Uuid());
+  getit
+    ..registerLazySingleton<Client>(TimeoutClient.new)
+    ..registerLazySingleton<FlutterSecureStorage>(
+      () => const FlutterSecureStorage(),
+    )
+    ..registerLazySingleton<Uuid>(() => const Uuid())
+    ..registerSingletonAsync<SharedPreferences>(
+      () async => SharedPreferences.getInstance(),
+    )
+    ..registerLazySingleton<AuthClient>(
+      () => AuthClient(
+        client: getit<Client>(),
+        secureStroage: getit<FlutterSecureStorage>(),
+        uuid: getit<Uuid>(),
+      ),
+    )
+    ..registerFactory<AuthCubit>(
+      () => AuthCubit(getit<AuthClient>()),
+    )
+    ..registerFactory<BotomNavBarCubit>(BotomNavBarCubit.new);
 
-  // async singleton — SharedPreferences await gerektiriyor
-  getit.registerSingletonAsync<SharedPreferences>(
-    () async => await SharedPreferences.getInstance(),
-  );
-
-  // infra — lazy, bağımlıları zaten lazy kayıtlı
-  getit.registerLazySingleton<AuthClient>(
-    () => AuthClient(
-      client: getit<Client>(),
-      secureStroage: getit<FlutterSecureStorage>(),
-      uuid: getit<Uuid>(),
-    ),
-  );
-
-  // factory — her seferinde yeni instance
-  getit.registerFactory<AuthCubit>(
-    () => AuthCubit(getit<AuthClient>()),
-  );
-
-  getit.registerFactory<BotomNavBarCubit>(() => BotomNavBarCubit());
   await getit.allReady();
 }

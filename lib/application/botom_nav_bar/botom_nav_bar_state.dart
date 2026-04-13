@@ -6,7 +6,9 @@ final class BotomNavBarState extends Equatable {
   final Option<BotomNavBarTab> tabOption;
 
   factory BotomNavBarState.inital() {
-    return BotomNavBarState(tabOption: Some(BotomNavBarTab.album));
+    return const BotomNavBarState(
+      tabOption: Some(BotomNavBarTab.album),
+    );
   }
 
   BotomNavBarState copyWith({
@@ -26,8 +28,9 @@ final class BotomNavBarState extends Equatable {
 }
 
 enum BotomNavBarTab {
-  album(Icons.image_outlined, "Album"),
-  settings(Icons.settings_outlined, "Settings");
+  album(Icons.image_outlined, 'Album'),
+  settings(Icons.settings_outlined, 'Settings')
+  ;
 
   const BotomNavBarTab(this.icon, this.label);
   final IconData icon;

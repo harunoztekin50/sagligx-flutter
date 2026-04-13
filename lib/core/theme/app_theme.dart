@@ -24,7 +24,6 @@ class AppTheme {
           ? ColorScheme.light(
               primary: colors.primary,
               surface: colors.surface,
-              onPrimary: Colors.white,
               onSurface: colors.textPrimary,
             )
           : ColorScheme.dark(

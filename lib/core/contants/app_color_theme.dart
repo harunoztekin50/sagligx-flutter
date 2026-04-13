@@ -25,16 +25,20 @@ class AppColorTheme {
 
   factory AppColorTheme.dark() {
     return AppColorTheme._(
-      background: Color(
+      background: const Color(
         0xFF1A1612,
       ), // light background'un karanlık versiyonu
-      surface: Color(
+      surface: const Color(
         0xFF2A2420,
       ), // light surface'in karanlık versiyonu
-      primary: Color(0xFFD4A373), // primary aynı kalır — marka rengi
-      textPrimary: Color(0xFFF5EFE6), // light textPrimary'nin tersi
-      textSecondary: Color(0xFFADA89C), // biraz açık gri
-      border: Color(0xFF3A3430), // dark surface'e uygun border
+      primary: const Color(
+        0xFFD4A373,
+      ), // primary aynı kalır — marka rengi
+      textPrimary: const Color(
+        0xFFF5EFE6,
+      ), // light textPrimary'nin tersi
+      textSecondary: const Color(0xFFADA89C), // biraz açık gri
+      border: const Color(0xFF3A3430), // dark surface'e uygun border
     );
   }
 

@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:saglixen/core/contants/app_assets.dart';
 
 final class SplashLogo extends StatelessWidget {
-  const SplashLogo({super.key, required this.size});
+  const SplashLogo({required this.size, super.key});
 
   final Size size;
 
@@ -24,8 +24,8 @@ final class SplashLogo extends StatelessWidget {
                     controller.repeat(reverse: true),
               )
               .scale(
-                begin: Offset(0.7, 0.7),
-                end: Offset(1.10, 1.10),
+                begin: const Offset(0.7, 0.7),
+                end: const Offset(1.10, 1.10),
                 duration: 2000.ms,
                 curve: Curves.easeInOut,
               ),

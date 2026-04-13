@@ -34,6 +34,8 @@ class AuthCubit extends Cubit<AuthCubitState> {
   }
 
   Future<void> loginAnonymus() async {
+    if (state.isProcessing) return;
+
     debugPrint('CUBIT: loginAnonymus çağrıldı'); // ← bu yazıyor mu?
 
     emit(

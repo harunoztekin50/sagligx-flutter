@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:saglixen/domain/auth/auth_metod_enum.dart';
 import 'package:saglixen/domain/auth/sub_enum.dart';
-
-import 'sub_model.dart';
+import 'package:saglixen/domain/auth/sub_model.dart';
 
 class UserModel extends Equatable {
   final String id;
@@ -25,12 +24,12 @@ class UserModel extends Equatable {
     required this.customerId,
     required this.authMethod,
     required this.authId,
-    this.fcmToken,
     required this.credits,
-    this.creditsExpiresAt,
     required this.isNewUser,
     required this.createdAt,
     required this.updatedAt,
+    this.fcmToken,
+    this.creditsExpiresAt,
     this.deletedAt,
     this.subscription,
   });

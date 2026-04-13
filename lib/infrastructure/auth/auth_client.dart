@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -31,7 +32,6 @@ class AuthClient extends IAuthClient with AuthMixin {
     debugPrint('CLIENT: loginAnonymus başladı');
 
     final deviceKey = await getUniqueDeviceKey();
-    debugPrint('CLIENT: deviceKey=$deviceKey');
 
     try {
       debugPrint(
@@ -41,7 +41,7 @@ class AuthClient extends IAuthClient with AuthMixin {
       final response = await client.post(
         ApiEndpoints.anonymousLogin,
         headers: {'Content-Type': 'application/json; charset=utf-8'},
-        body: jsonEncode({"device_key": deviceKey}),
+        body: jsonEncode({'device_key': deviceKey}),
       );
       debugPrint(
         'CLIENT: response=${response.statusCode} ${response.body}',
@@ -58,7 +58,9 @@ class AuthClient extends IAuthClient with AuthMixin {
       }
       return Left(mapStatusToFailure(response.statusCode));
     } on SocketException catch (_) {
-      return left(NetworkFailure());
+      return left(const NetworkFailure());
+    } on TimeoutException catch (_) {
+      return left(const TimeoutFailure());
     } catch (e) {
       return left(UnkonwFailure(e.toString()));
     }
@@ -68,7 +70,7 @@ class AuthClient extends IAuthClient with AuthMixin {
   Future<Either<Failure, UserModel>> getUser() {
     return sendRequestWithToken(
       (accessToken) async {
-        return await client.get(
+        return client.get(
           ApiEndpoints.user,
           headers: {'Authorization': 'Bearer $accessToken'},
         );
@@ -94,19 +96,19 @@ class AuthClient extends IAuthClient with AuthMixin {
     );
 
     if (deviceKey == null) {
-      return Left(NotFoundFailer());
+      return const Left(NotFoundFailer());
     }
 
     return sendRequestWithToken(
       (accessToken) async {
-        return await client.post(
+        return client.post(
           ApiEndpoints.logout,
           headers: {
             'Authorization': 'Bearer $accessToken',
             'Content-Type':
                 'application/json; charset=utf-8', // ← ekle
           },
-          body: jsonEncode({"device_key": deviceKey}),
+          body: jsonEncode({'device_key': deviceKey}),
         );
       },
       (response) async {
@@ -127,7 +129,7 @@ class AuthClient extends IAuthClient with AuthMixin {
 
   @override
   Future<Either<Failure, AuthTokens>> getStoreAuthTokens() async {
-    return await getAuthTokens();
+    return getAuthTokens();
   }
 
   @override

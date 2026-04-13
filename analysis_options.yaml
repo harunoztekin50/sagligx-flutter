@@ -1,4 +1,39 @@
-include: package:flutter_lints/flutter.yaml
+include: package:very_good_analysis/analysis_options.yaml
 
 formatter:
   page_width: 70
+
+analyzer:
+  errors:
+    non_constant_identifier_names: ignore
+
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "lib/gen/**"
+    - "module/**"
+
+  language:
+    strict-casts: true
+    strict-inference: false
+    strict-raw-types: true
+
+linter:
+  rules:
+    public_member_api_docs: false
+    sort_pub_dependencies: false
+    avoid_print: true
+    always_use_package_imports: true
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    prefer_final_fields: true
+    prefer_const_constructors: true
+    prefer_const_constructors_in_immutables: true
+    prefer_const_literals_to_create_immutables: true
+    unnecessary_this: true
+    avoid_dynamic_calls: true
+    avoid_redundant_argument_values: true
+    specify_nonobvious_property_types: false
+    avoid_catches_without_on_clauses: false
+    sort_constructors_first: false
+    lines_longer_than_80_chars: false

@@ -1,8 +1,9 @@
 enum AuthMethod {
-  email("email"),
-  google("google"),
-  apple("apple"),
-  anonymous("anonymous");
+  email('email'),
+  google('google'),
+  apple('apple'),
+  anonymous('anonymous')
+  ;
 
   final String key;
   const AuthMethod(this.key);

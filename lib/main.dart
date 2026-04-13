@@ -15,11 +15,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Saglix",
+      title: 'Saglix',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
-      home: SplashPage(),
+      home: const SplashPage(),
     );
   }
 }

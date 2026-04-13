@@ -11,8 +11,12 @@ final class AuthCubitState extends Equatable {
   final Option<Failure> processFailOption;
   final bool isProcessing;
 
+  Failure get failOrCrash {
+    return processFailOption.getOrCrash();
+  }
+
   factory AuthCubitState.initial() {
-    return AuthCubitState(
+    return const AuthCubitState(
       userOption: None(),
       processFailOption: None(),
       isProcessing: false,

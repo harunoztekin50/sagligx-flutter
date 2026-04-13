@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
 import 'package:saglixen/core/contants/api_endpoints.dart';
+import 'package:saglixen/core/contants/string_constansts.dart';
 import 'package:saglixen/core/failure/failure.dart';
 import 'package:saglixen/domain/auth/auth_tokens_model.dart';
 import 'package:uuid/uuid.dart';
@@ -22,9 +23,9 @@ mixin AuthMixin {
   Client get client;
   Uuid get uuid;
 
-  static const deviceIdKey = "device_id";
-  static const refreshTokenKey = "refresh_token";
-  static const accessTokenKey = "access_token";
+  static const deviceIdKey = 'device_id';
+  static const refreshTokenKey = 'refresh_token';
+  static const accessTokenKey = 'access_token';
 
   Future<AuthTokens?> _getAccessToken(String refreshToken) async {
     final response = await client.post(
@@ -50,9 +51,11 @@ mixin AuthMixin {
 
       // JWT'nin payload kısmı (ortadaki parça)
       final normalized = base64Url.normalize(parts[1]);
-      final payload = json.decode(
-        utf8.decode(base64Url.decode(normalized)),
-      );
+      final payload =
+          json.decode(
+                utf8.decode(base64Url.decode(normalized)),
+              )
+              as Map<String, dynamic>;
 
       final exp = payload['exp'] as int?;
       if (exp == null) return true;
@@ -66,7 +69,7 @@ mixin AuthMixin {
   }
 
   Future<Either<Failure, T>> sendRequestWithToken<T>(
-    NetworkRequest request,
+    NetworkRequest<Response> request,
     ResponseCallBack<T> onResponse,
     ExeptionCallBack<T> exepciton,
   ) async {
@@ -77,19 +80,23 @@ mixin AuthMixin {
       );
 
       if (refreshToken == null || accesToken == null) {
-        return left(UnAuntHorizedfail());
+        return left(const UnAuntHorizedfail());
       }
 
       if (_isTokenExpired(accesToken)) {
         final newTokens = await _getAccessToken(refreshToken);
         if (newTokens == null) {
-          return left(UnAuntHorizedfail());
+          return left(const UnAuntHorizedfail());
         }
         final storeResult = await storeAuthTokens(
           authTokens: newTokens,
         );
         if (storeResult.isLeft()) {
-          return left(UnkonwFailure("Token saklanamadı"));
+          return left(
+            const UnkonwFailure(
+              StringConstants.tokenSaklanamadi,
+            ),
+          );
         }
         accesToken = newTokens.accessToken;
         refreshToken = newTokens.refreshToken;
@@ -99,14 +106,18 @@ mixin AuthMixin {
       if (response.statusCode == HttpStatus.unauthorized) {
         final newTokens = await _getAccessToken(refreshToken);
         if (newTokens == null) {
-          return left(UnAuntHorizedfail());
+          return left(const UnAuntHorizedfail());
         }
 
         final storeResult = await storeAuthTokens(
           authTokens: newTokens,
         );
         if (storeResult.isLeft()) {
-          return left(UnkonwFailure("Token saklanamadı"));
+          return left(
+            const UnkonwFailure(
+              StringConstants.tokenSaklanamadi,
+            ),
+          );
         }
         final retryResponse = await request(newTokens.accessToken);
         return onResponse(retryResponse); // ikinci sonucu parse et
@@ -114,7 +125,7 @@ mixin AuthMixin {
 
       return onResponse(response);
     } catch (e) {
-      return await exepciton(e);
+      return exepciton(e);
     }
   }
 
@@ -128,7 +139,7 @@ mixin AuthMixin {
       );
 
       if (accesnToken == null || refreshToken == null) {
-        return left(NotFoundFailer());
+        return left(const NotFoundFailer());
       }
 
       return right(
@@ -186,8 +197,8 @@ mixin AuthMixin {
   // Hata kodlarını Failure'a çeviren tek nokta
   Failure mapStatusToFailure(int statusCode) {
     return switch (statusCode) {
-      HttpStatus.unauthorized => UnAuntHorizedfail(),
-      HttpStatus.notFound => NotFoundFailer(),
+      HttpStatus.unauthorized => const UnAuntHorizedfail(),
+      HttpStatus.notFound => const NotFoundFailer(),
       _ => UnkonwFailure(statusCode.toString()),
     };
   }
@@ -195,8 +206,8 @@ mixin AuthMixin {
   // Exception'ı Failure'a çeviren tek nokta
   Failure mapExceptionToFailure(Object e) {
     return switch (e) {
-      SocketException() => NetworkFailure(),
-      TimeoutException() => TimeoutFailure(),
+      SocketException() => const NetworkFailure(),
+      TimeoutException() => const TimeoutFailure(),
       _ => UnkonwFailure(e.toString()),
     };
   }

@@ -4,12 +4,12 @@ import 'package:saglixen/core/widgets_wraper/scale_tap_efekt.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
-    super.key,
     required this.text,
     required this.heigth,
     required this.fontSize,
     required this.fontWeight,
     required this.callback,
+    super.key,
   });
 
   final String text;
@@ -23,7 +23,7 @@ class PrimaryButton extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       height: heigth,
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 30),
       decoration: BoxDecoration(
         color: context.colors.primary,
         borderRadius: BorderRadius.circular(16),

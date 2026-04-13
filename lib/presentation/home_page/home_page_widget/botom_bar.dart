@@ -19,10 +19,12 @@ class HomePageBotomBar extends StatelessWidget {
               BotomNavBarTab.values[value],
             );
           },
-          selectedLabelStyle: TextStyle(fontWeight: FontWeight.w700),
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w700,
+          ),
           selectedItemColor: context.colors.primary,
           unselectedItemColor: context.colors.textSecondary,
-          unselectedLabelStyle: TextStyle(
+          unselectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.w700,
           ),
           items: state.tabs.map((tab) => tab.barItem).toList(),

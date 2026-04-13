@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:saglixen/application/auth_cubit/auth_cubit.dart';
+import 'package:saglixen/core/contants/string_constansts.dart';
 import 'package:saglixen/core/extension/contex_extension.dart';
 import 'package:saglixen/presentation/settings_page/setings_widget/custom_setings_appbar.dart';
 import 'package:saglixen/presentation/settings_page/setings_widget/custom_settings_page_title.dart';
@@ -13,7 +14,7 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: CustomSetingsAppbar(),
+        appBar: const CustomSetingsAppbar(),
         body: Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 5,
@@ -31,14 +32,11 @@ class SettingPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SettingPageTitle(
+                    const SettingPageTitle(
                       leadingIcon: LucideIcons.circleQuestionMark,
                       traidingIcon: Icons.launch,
-                      title: "Help Center",
-                      onTab: () {
-                        HapticFeedback.lightImpact();
-                        debugPrint("Hello World");
-                      },
+                      title: StringConstants.helpCenter,
+                      onTab: HapticFeedback.lightImpact,
                     ),
 
                     const Divider(),
@@ -46,11 +44,12 @@ class SettingPage extends StatelessWidget {
                     SettingPageTitle(
                       leadingIcon: Icons.exit_to_app_outlined,
                       traidingIcon: Icons.chevron_right_outlined,
-                      title: "Log out",
-                      onTab: () {
-                        HapticFeedback.lightImpact();
-                        context.read<AuthCubit>().logOut();
-                        debugPrint("logout çalıştı");
+                      title: StringConstants.logOut,
+                      onTab: () async {
+                        await HapticFeedback.lightImpact();
+                        if (!context.mounted) return;
+                        await context.read<AuthCubit>().logOut();
+                        debugPrint('logout çalıştı');
                       },
                     ),
                   ],

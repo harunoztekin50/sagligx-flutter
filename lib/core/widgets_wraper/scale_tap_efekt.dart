@@ -5,7 +5,7 @@ class ScaleTap extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
 
-  const ScaleTap({super.key, required this.child, this.onTap});
+  const ScaleTap({required this.child, super.key, this.onTap});
 
   @override
   State<ScaleTap> createState() => _ScaleTapState();

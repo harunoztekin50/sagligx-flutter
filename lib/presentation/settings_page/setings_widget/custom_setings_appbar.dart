@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saglixen/core/contants/string_constansts.dart';
 import 'package:saglixen/core/extension/contex_extension.dart';
 
 class CustomSetingsAppbar extends StatelessWidget
@@ -16,10 +17,10 @@ class CustomSetingsAppbar extends StatelessWidget
         color: context.colors.textPrimary,
       ),
       backgroundColor: context.colors.surface,
-      title: Text("Settings"),
+      title: const Text(StringConstants.settings),
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

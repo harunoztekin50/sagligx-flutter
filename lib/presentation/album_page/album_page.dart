@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saglixen/core/contants/string_constansts.dart';
 
 class AlbumPage extends StatelessWidget {
   const AlbumPage({super.key});
@@ -6,9 +7,13 @@ class AlbumPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Column(
+      body: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [Center(child: Text("Album"))],
+        children: [
+          Center(
+            child: Text(StringConstants.album),
+          ),
+        ],
       ),
     );
   }

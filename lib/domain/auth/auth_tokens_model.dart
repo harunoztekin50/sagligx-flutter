@@ -4,7 +4,10 @@ class AuthTokens extends Equatable {
   final String refreshToken;
   final String accessToken;
 
-  const AuthTokens({required this.refreshToken, required this.accessToken});
+  const AuthTokens({
+    required this.refreshToken,
+    required this.accessToken,
+  });
 
   factory AuthTokens.fromMap(Map<String, dynamic> json) {
     return AuthTokens(
@@ -18,8 +21,9 @@ class AuthTokens extends Equatable {
 }
 
 enum UserTokens {
-  accessToken("access_token"),
-  refreshToken("refresh_token");
+  accessToken('access_token'),
+  refreshToken('refresh_token')
+  ;
 
   final String token;
 

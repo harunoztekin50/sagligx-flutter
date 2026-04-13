@@ -39,7 +39,7 @@ class _SplashPageState extends State<SplashPage> with SplashMixin {
         backgroundColor: context.colors.background,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Stack(
               children: [
                 SplashLogo(size: size),
@@ -56,7 +56,7 @@ class _SplashPageState extends State<SplashPage> with SplashMixin {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Text(
-        "from Harun",
+        'from Harun',
         style: context.textTheme.headlineSmall?.copyWith(
           color: context.colors.textPrimary,
           fontStyle: FontStyle.italic,

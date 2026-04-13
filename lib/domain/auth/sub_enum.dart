@@ -1,9 +1,10 @@
 enum SubscriptionType {
-  normal("normal"),
-  trial("trial"),
-  intro("intro"),
-  prepaid("prepaid"),
-  promo("promo");
+  normal('normal'),
+  trial('trial'),
+  intro('intro'),
+  prepaid('prepaid'),
+  promo('promo')
+  ;
 
   final String key;
   const SubscriptionType(this.key);
@@ -18,9 +19,10 @@ enum SubscriptionType {
 }
 
 enum SubscriptionStatus {
-  active("active"),
-  expired("expired"),
-  billingIssue("billing_issue");
+  active('active'),
+  expired('expired'),
+  billingIssue('billing_issue')
+  ;
 
   final String key;
   const SubscriptionStatus(this.key);
@@ -35,7 +37,8 @@ enum SubscriptionStatus {
 }
 
 enum SubscriptionPlan {
-  pro("pro");
+  pro('pro')
+  ;
 
   final String key;
   const SubscriptionPlan(this.key);
@@ -50,10 +53,11 @@ enum SubscriptionPlan {
 }
 
 enum SubscriptionPeriod {
-  oneWeek("1w", 7),
-  oneMonth("1m", 30),
-  sixMonth("6m", 180),
-  oneYear("1y", 365);
+  oneWeek('1w', 7),
+  oneMonth('1m', 30),
+  sixMonth('6m', 180),
+  oneYear('1y', 365)
+  ;
 
   final String key;
   final int days;

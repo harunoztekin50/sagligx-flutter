@@ -13,7 +13,7 @@ class HomePage extends StatefulWidget {
   static PageTransition<dynamic> route() {
     return PageTransition(
       type: PageTransitionType.fade,
-      childBuilder: (_) => HomePage._(),
+      childBuilder: (_) => const HomePage._(),
     );
   }
 
@@ -30,19 +30,19 @@ class _HomePageState extends State<HomePage> with HomePageMixin {
       },
       child: Scaffold(
         body: PageView(
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           controller: controler,
           children: BotomNavBarTab.values.map((i) {
             switch (i) {
               case BotomNavBarTab.album:
-                return AlbumPage();
+                return const AlbumPage();
               case BotomNavBarTab.settings:
-                return SettingPage();
+                return const SettingPage();
             }
           }).toList(),
         ),
 
-        bottomNavigationBar: HomePageBotomBar(),
+        bottomNavigationBar: const HomePageBotomBar(),
       ),
     );
   }

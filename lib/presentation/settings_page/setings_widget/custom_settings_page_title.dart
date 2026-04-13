@@ -3,11 +3,11 @@ import 'package:saglixen/core/extension/contex_extension.dart';
 
 class SettingPageTitle extends StatelessWidget {
   const SettingPageTitle({
-    super.key,
     required this.leadingIcon,
     required this.traidingIcon,
     required this.title,
     required this.onTab,
+    super.key,
   });
 
   final IconData leadingIcon;
@@ -37,7 +37,7 @@ class SettingPageTitle extends StatelessWidget {
               child: Icon(
                 leadingIcon,
                 color: context.colors.surface,
-                size: 22.0,
+                size: 22,
               ),
             ),
             const SizedBox(width: 15),
