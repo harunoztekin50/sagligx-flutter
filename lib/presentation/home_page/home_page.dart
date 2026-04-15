@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:saglixen/application/auth_cubit/auth_cubit.dart';
 import 'package:saglixen/application/botom_nav_bar/botom_nav_bar_cubit.dart';
+import 'package:saglixen/core/failure/failure.dart';
+import 'package:saglixen/core/failure/handle_failure.dart';
 import 'package:saglixen/presentation/album_page/album_page.dart';
 import 'package:saglixen/presentation/home_page/home_page_mixin.dart';
 import 'package:saglixen/presentation/home_page/home_page_widget/botom_bar.dart';
@@ -24,10 +27,23 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with HomePageMixin {
   @override
   Widget build(BuildContext context) {
-    return BlocListener<BotomNavBarCubit, BotomNavBarState>(
-      listener: (context, state) {
-        controler.jumpToPage(state.curentIndex);
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<BotomNavBarCubit, BotomNavBarState>(
+          listener: (context, state) {
+            controler.jumpToPage(state.curentIndex);
+          },
+        ),
+        BlocListener<AuthCubit, AuthCubitState>(
+          listenWhen: (previous, current) {
+            return previous.userOption.isSome() &&
+                current.userOption.isNone();
+          },
+          listener: (context, state) {
+            handleFailure(context, const UnAuntHorizedfail());
+          },
+        ),
+      ],
       child: Scaffold(
         body: PageView(
           physics: const NeverScrollableScrollPhysics(),

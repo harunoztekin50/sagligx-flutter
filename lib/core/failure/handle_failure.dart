@@ -17,7 +17,7 @@ void handleFailure(BuildContext ctx, Failure fail) {
       goster(StringConstants.timeout);
     case UnAuntHorizedfail():
       goster(StringConstants.unAuthorized);
-      Future.delayed(const Duration(seconds: 2), () async {
+      Future.delayed(const Duration(milliseconds: 500), () async {
         if (!ctx.mounted) return;
         await Navigator.pushAndRemoveUntil(
           ctx,

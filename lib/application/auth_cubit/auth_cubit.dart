@@ -25,6 +25,7 @@ class AuthCubit extends Cubit<AuthCubitState> {
       state.copyWith(
         processFailOption: failOrUnit.toLeftOption(),
         isProcessing: false,
+        userOption: failOrUnit.isRight() ? none() : null,
       ),
     );
   }
